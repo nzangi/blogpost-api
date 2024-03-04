@@ -8,7 +8,9 @@ from blog.models import Post
 from django.contrib.auth.models import User
 from rest_framework import status
 from django.http import HttpResponse
+
 # Create your views here.
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def view_posts(request):
@@ -18,7 +20,6 @@ def view_posts(request):
         return Response({'data':postSerializer.data},status=status.HTTP_200_OK)
     
     
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def post_post(request):
@@ -52,7 +53,26 @@ def update_post(request,post_id):
                 return Response({'message':'You cannot update this post'},status=status.HTTP_401_UNAUTHORIZED)
         else:
             return Response(post_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST','DELETE'])
+@permission_classes([IsAuthenticated])   
+def delete_post(request,post_id):
+    try:
+        post_to_delete = Post.objects.get(pk=post_id)
         
+        if request.method == "POST" or request.method == "DELETE":
+            if post_to_delete.author == request.user:
+                post_to_delete.delete()
+                return Response({'message':'The post was deleted sucessfully!'})
+            else:
+                return Response({'message':'You cannot delete this post. You are not the author'})
+    except Post.DoesNotExist:
+        return Response({'message':'The post doesnot exists'})
+    
+
+    
+
 
 
 
