@@ -5,9 +5,9 @@ from django.contrib.auth.models import User
 
 class Profile(models.Model):
     profile_user = models.OneToOneField(User,on_delete=models.CASCADE)
-    title = models.CharField(max_length=100)
-    description = models.CharField(max_lenth=300)
-    image = models.ImageField(upload_to='media')
+    title = models.CharField(max_length=100,blank=True,null=True)
+    description = models.CharField(max_length=300,blank=True,null=True)
+    image = models.ImageField(upload_to='media',blank=True,null=True)
 
     def __str__(self) -> str:
-        return f'{self.user.username} profile'
+        return f'{self.profile_user.username} profile'
