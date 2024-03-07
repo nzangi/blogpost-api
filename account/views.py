@@ -6,6 +6,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.decorators import api_view,permission_classes
 from .models import Profile
+from django.shortcuts import get_object_or_404
+from django.db import IntegrityError
 
 # Create your views here.
 
@@ -24,7 +26,7 @@ def create_user_profile(request):
 @api_view(['GET','POST','PUT'])
 @permission_classes([IsAuthenticated])
 def update_profile(request):
-    user_profile = Profile.objects.get(profile_user=request.user)
+    user_profile = get_object_or_404(Profile,profile_user=request.user)
 
     if request.method == 'GET':
         profile_serializer = ProfileSerializer(user_profile)
@@ -33,8 +35,11 @@ def update_profile(request):
     if request.method == 'PUT':
         profile_serializer = ProfileSerializer(user_profile,data=request.data)
         if profile_serializer.is_valid():
-            profile_serializer.save()
-            return Response({'message':'Account detailed updated sucessfully','account':profile_serializer.data},status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+            try:
+                profile_serializer.save()
+                return Response({'message':'Account details updated sucessfully','account':profile_serializer.data},status=status.HTTP_200_OK)
+            except IntegrityError:
+                return Response({'error': 'Username or email already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(profile_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 
