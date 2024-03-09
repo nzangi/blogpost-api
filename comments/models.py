@@ -14,5 +14,5 @@ class Comments(models.Model):
     class Meta:
         ordering = ['-commented_date']
 
-    def __str__(self) -> str:
-        return self.comment
+    def __str__(self):
+        return self.comment_text
